@@ -1,8 +1,8 @@
 package main
 
 import (
-	"StarClub-hack/model"
-	"StarClub-hack/service"
+	"StarClub/model"
+	"StarClub/service"
 	"github.com/gin-gonic/gin"
 )
 

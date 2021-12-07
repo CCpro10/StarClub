@@ -12,6 +12,7 @@ var (
 
 func InitMySQL()(err error){
 	dsn := "debian-sys-maint:YW6xCg7iemGYaPGe@tcp(127.0.0.1:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local"
+
 	DB, err = gorm.Open("mysql", dsn)
 	if err != nil {
 		return

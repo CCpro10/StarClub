@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	_ "fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
@@ -38,4 +39,7 @@ func InitMySQL() {
 	if err != nil {
 		panic(err)
 	}
+
+	//先创建表
+	DB.AutoMigrate(UserRegister{})
 }

@@ -1,11 +1,13 @@
 package service
 
 import (
-	"StarClub-hack/model"
+
+	"StarClub/model"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
 	"time"
@@ -114,22 +116,23 @@ func Register(c *gin.Context) {
 
 	fmt.Println(gin.H{"msg": "验证码正确"})
 
-	//// 对密码加密
-	//hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	//if err != nil {
-	//	c.JSON(http.StatusUnprocessableEntity, gin.H{"msg": "用户密码加密失败"})
-	//	return
-	//}
-	//user.Password=string(hashPassword)
-	//
-	////存入注册信息
-	//err = dao.DB.Create(&user).Error
-	//if err != nil {
-	//	c.JSON(http.StatusOK, gin.H{"msg":"注册信息存入数据库失败:"+err.Error()})
-	//} else {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"msg":  "注册成功,请你重新登录",
-	//		"date": user,
-	//	})
-	//}
+	// 对密码加密
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"msg": "用户密码加密失败"})
+		return
+	}
+	user.Password=string(hashPassword)
+
+
+	//存入注册信息
+	err = model.DB.Create(&user).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"msg":"注册信息存入数据库失败:"+err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"msg":  "注册成功,请你重新登录",
+			"date": user,
+		})
+	}
 }

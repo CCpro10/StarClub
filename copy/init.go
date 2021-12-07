@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"forum/models"
 	"github.com/gin-gonic/gin"
 	"forum/dao"

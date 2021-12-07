@@ -1,4 +1,4 @@
-module StarClub-hack
+module StarClub
 
 go 1.13
 
