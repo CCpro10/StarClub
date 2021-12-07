@@ -1,0 +1,135 @@
+package service
+
+import (
+	"StarClub-hack/model"
+	"encoding/json"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"net/http"
+	"strings"
+	"time"
+)
+
+//发送验证码
+func SendVcode(c *gin.Context)  {
+	var user model.UserRegister
+	//发送的验证码
+	var vcode string
+	//发送时间
+	var sendtime time.Time
+	err:=c.ShouldBind(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱参数绑定失败:" + err.Error()})
+	}
+	//检查邮箱格式是否合法
+	if model.CheckEmail(user.Email)==false{
+		c.JSON(http.StatusBadRequest,gin.H{"msg": "邮箱格式不正确,请确保输入有效的邮箱"})
+		return
+	}
+
+	//通过Email从Redis获取上一次发送的时间,如果时间间隔小于一分钟,则拒绝发送
+	ObtainedValue,err:=model.RedisDB.Get(model.CTX,user.Email).Result()
+	//如果value查询成功
+	if err==nil{
+		//取出value里的发送时间sendtime
+		parts := strings.SplitN(ObtainedValue, " ", 2)
+		var sendtime time.Time
+		_=json.Unmarshal([]byte(parts[1]),&sendtime)
+		//验证码在前一分钟以内发送过,则拒绝发送
+		if sendtime.Add(1*time.Minute).After(time.Now()){
+			c.JSON(http.StatusBadRequest,gin.H{"msg": "验证码发送过于频繁"})
+			return
+		}
+	}
+
+
+	//发送验证码邮件
+	if vcode,sendtime,err=model.EmailVerify(user.Email);err!=nil{
+		c.JSON(http.StatusInternalServerError,gin.H{"msg":"邮箱发送错误,error="+err.Error()})
+		return
+	}
+	sendtime2,_:=json.Marshal(sendtime)
+
+	//Redis设置的value包括了用户的验证码和发送时间
+	value:=vcode+" "+string(sendtime2)
+
+	//设置验证码有效时间为十分钟
+	model.RedisDB.Set(model.CTX,user.Email,value,10*time.Minute)
+	c.JSON(http.StatusOK,gin.H{"msg":"验证码发送成功"})
+	return
+}
+
+//注册路由
+func Register(c *gin.Context) {
+	// 前端页面填写待办事项 点击提交 会发请求到这里
+	//从请求中把数据取出
+	var user model.UserRegister
+	//dao.DB.AutoMigrate(model.UserInfo{})
+	err := c.ShouldBind(&user)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "用户参数绑定失败:" + err.Error()})
+	}
+
+	//验证学号,邮件,密码的结构
+	if len(user.Studentid)!=10{
+		c.JSON(http.StatusBadRequest,gin.H{"msg": "学号格式错误"})
+		return
+	}
+
+	if model.CheckEmail(user.Email)==false{
+		c.JSON(http.StatusBadRequest,gin.H{"msg": "邮箱格式不正确,请确保输入有效的邮箱"})
+		return
+	}
+
+	if len(user.Password) < 6 {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "密码长度不能小于六位"})
+		return
+	}
+
+	//判断在数据库中邮箱,学号是否存在,待完善
+
+	//查询Redis,检测验证码是否正确,是否过期
+	value,err:=model.RedisDB.Get(model.CTX,user.Email).Result()
+
+	//如果查不到此邮箱对应验证码
+	if err==redis.Nil{
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "验证码错误或已经过期"})
+		return
+	}else if err != nil {//查询失败了
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "服务器查询验证码失败"})
+		return
+	}
+
+	//取出value里的验证码vcode
+	parts := strings.SplitN(value, " ", 2)
+	vcode:=parts[0]
+
+	//通过邮箱查到的验证码和用户输入的验证码不一样
+	if vcode!=user.Vcode{
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "验证码错误或已经过期"})
+		return
+	}
+
+	fmt.Println(gin.H{"msg": "验证码正确"})
+
+	//// 对密码加密
+	//hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	//if err != nil {
+	//	c.JSON(http.StatusUnprocessableEntity, gin.H{"msg": "用户密码加密失败"})
+	//	return
+	//}
+	//user.Password=string(hashPassword)
+	//
+	////存入注册信息
+	//err = dao.DB.Create(&user).Error
+	//if err != nil {
+	//	c.JSON(http.StatusOK, gin.H{"msg":"注册信息存入数据库失败:"+err.Error()})
+	//} else {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"msg":  "注册成功,请你重新登录",
+	//		"date": user,
+	//	})
+	//}
+}
