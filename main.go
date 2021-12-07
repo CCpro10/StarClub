@@ -1,18 +1,20 @@
 package main
 
 import (
-
+	"StarClub-hack/model"
 	"StarClub-hack/service"
 	"github.com/gin-gonic/gin"
-
 )
 
 func main() {
 	//连接数据库
-	//err := dao.InitMySQL()
+	model.InitMySQL()
+
+	//连接Redis
+	model.InitRedis()
 
 	//defer dao.Close()  // 程序退出关闭数据库连接
-	r:=gin.Default()
+	r := gin.Default()
 
 	r.POST("/sendvcode", service.SendVcode)
 	r.POST("/register", service.Register)
@@ -56,7 +58,7 @@ func main() {
 	//	Developergroup.POST("/managerlist",controller.SetManager)
 	//}
 
-	if err:=r.Run(":9999");err!=nil{
+	if err := r.Run(":9999"); err != nil {
 		panic(err)
 	}
 }
