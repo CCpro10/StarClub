@@ -1,10 +1,8 @@
 package service
 
 import (
-
 	"StarClub/model"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/crypto/bcrypt"
@@ -33,11 +31,13 @@ func SendVcode(c *gin.Context)  {
 	//通过Email从Redis获取上一次发送的时间,如果时间间隔小于一分钟,则拒绝发送
 	ObtainedValue,err:=model.RedisDB.Get(model.CTX,user.Email).Result()
 	//如果value查询成功
+
 	if err==nil{
 		//取出value里的发送时间sendtime
 		parts := strings.SplitN(ObtainedValue, " ", 2)
 		var sendtime time.Time
 		_=json.Unmarshal([]byte(parts[1]),&sendtime)
+
 		//验证码在前一分钟以内发送过,则拒绝发送
 		if sendtime.Add(1*time.Minute).After(time.Now()){
 			c.JSON(http.StatusBadRequest,gin.H{"msg": "验证码发送过于频繁"})
@@ -45,18 +45,17 @@ func SendVcode(c *gin.Context)  {
 		}
 	}
 
-
 	//发送验证码邮件
 	if vcode,sendtime,err=model.EmailVerify(user.Email);err!=nil{
 		c.JSON(http.StatusInternalServerError,gin.H{"msg":"邮箱发送错误,error="+err.Error()})
 		return
 	}
-	sendtime2,_:=json.Marshal(sendtime)
 
-	//Redis设置的value包括了用户的验证码和发送时间
+	//封装value,value包括了用户的验证码和发送时间
+	sendtime2,_:=json.Marshal(sendtime)
 	value:=vcode+" "+string(sendtime2)
 
-	//设置验证码有效时间为十分钟
+	//通过Redis设置验证码有效时间为十分钟
 	model.RedisDB.Set(model.CTX,user.Email,value,10*time.Minute)
 	c.JSON(http.StatusOK,gin.H{"msg":"验证码发送成功"})
 	return
@@ -64,36 +63,39 @@ func SendVcode(c *gin.Context)  {
 
 //注册路由
 func Register(c *gin.Context) {
-	// 前端页面填写待办事项 点击提交 会发请求到这里
-	//从请求中把数据取出
-	var user model.UserRegister
-	//dao.DB.AutoMigrate(model.UserInfo{})
-	err := c.ShouldBind(&user)
 
+	//从请求中把数据取出
+	var requestUser model.UserRegister
+	err := c.ShouldBind(&requestUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "用户参数绑定失败:" + err.Error()})
 	}
 
 	//验证学号,邮件,密码的结构
-	if len(user.Studentid)!=10{
+	if len(requestUser.StudentId)!=10{
 		c.JSON(http.StatusBadRequest,gin.H{"msg": "学号格式错误"})
 		return
 	}
-
-	if model.CheckEmail(user.Email)==false{
+	if model.CheckEmail(requestUser.Email)==false{
 		c.JSON(http.StatusBadRequest,gin.H{"msg": "邮箱格式不正确,请确保输入有效的邮箱"})
 		return
 	}
-
-	if len(user.Password) < 6 {
+	if len(requestUser.Password) < 6 {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "密码长度不能小于六位"})
 		return
 	}
 
-	//判断在数据库中邮箱,学号是否存在,待完善
+	//判断在数据库中邮箱是否存在
+	var user model.UserInfo
+	//查询并赋值给user
+	model.DB.Where("email=?", requestUser.Email).First(&user)
+	if user.ID != 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "此邮箱已被注册"})
+		return
+	}
 
 	//查询Redis,检测验证码是否正确,是否过期
-	value,err:=model.RedisDB.Get(model.CTX,user.Email).Result()
+	value,err:=model.RedisDB.Get(model.CTX,requestUser.Email).Result()
 
 	//如果查不到此邮箱对应验证码
 	if err==redis.Nil{
@@ -109,30 +111,31 @@ func Register(c *gin.Context) {
 	vcode:=parts[0]
 
 	//通过邮箱查到的验证码和用户输入的验证码不一样
-	if vcode!=user.Vcode{
+	if vcode!=requestUser.VerifyCode {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "验证码错误或已经过期"})
 		return
 	}
 
-	fmt.Println(gin.H{"msg": "验证码正确"})
-
 	// 对密码加密
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(requestUser.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"msg": "用户密码加密失败"})
 		return
 	}
-	user.Password=string(hashPassword)
 
-
-	//存入注册信息
-	err = model.DB.Create(&user).Error
+	//创建用户实例,存入注册信息
+	var userinfo=model.UserInfo{
+		Email: requestUser.Email,
+		StudentId: requestUser.StudentId,
+		Password: string(hashPassword),
+	}
+	err = model.DB.Create(&userinfo).Error
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"msg":"注册信息存入数据库失败:"+err.Error()})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"msg":  "注册成功,请你重新登录",
-			"date": user,
+			"date": userinfo,
 		})
 	}
 }

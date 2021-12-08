@@ -10,13 +10,17 @@ import (
 	"time"
 )
 
-
-//检验邮箱地址的合法性
+//正则表达式检验邮箱地址的合法性
 func CheckEmail(email string) (b bool) {
 	 m1, _ := regexp.MatchString("^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+", email)
-	 m2, _ := regexp.MatchString("^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+", string([]byte(email)[4:]))
-	if m1||m2{
+	if m1{
 		return true
+	}
+	if string([]byte(email)[:4])=="www."||string([]byte(email)[:4])=="WWW."{
+		m2, _ := regexp.MatchString("^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+", string([]byte(email )[4:]))
+		if m2{
+			return true
+		}
 	}
 	return false
 }
@@ -27,11 +31,17 @@ func EmailVerify (emaddr string) (vcode string,sendtime time.Time,err error){
 	// 简单设置 log 参数
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 	em := email.NewEmail()
+
 	// 设置 sender 发送方 的邮箱,此处可以填写自己的邮箱
 	em.From = "星社官方 <1797249167@qq.com>"
 
 	// 设置 receiver 接收方 的邮箱
-	em.To = []string{"Co15770778807@126.com"}
+	//把地址去除"www."发送,确保用户收到邮件
+	if string([]byte(emaddr)[:4])=="www."||string([]byte(emaddr)[:4])=="WWW."{
+		em.To = []string{string([]byte(emaddr)[4:])}
+	}else {
+		em.To = []string{emaddr}
+	}
 
 	// 设置主题
 	em.Subject = "[星社]邮箱验证"

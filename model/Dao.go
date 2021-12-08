@@ -1,13 +1,14 @@
 package model
 
 import (
-	"context"
 
+	"context"
 	_ "fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "time"
+
 )
 
 //Redis相关全局变量
@@ -42,4 +43,5 @@ func InitMySQL() {
 
 	//先创建表
 	DB.AutoMigrate(UserRegister{})
+	DB.AutoMigrate(UserInfo{})
 }

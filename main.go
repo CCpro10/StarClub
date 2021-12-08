@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	//连接数据库
 	model.InitMySQL()
 
@@ -18,6 +19,7 @@ func main() {
 
 	r.POST("/sendvcode", service.SendVcode)
 	r.POST("/register", service.Register)
+	r.POST("/login", service.Login)
 
 	//r.POST("/login",controller.Login)
 	//r.POST("/developerlogin",controller.Developerlogin)

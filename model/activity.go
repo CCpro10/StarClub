@@ -10,6 +10,7 @@ type Activity struct {
 	Article   string `form:"article"` //活动标题
 	Address   string  `form:"address"`//活动地点
 	Context   string `form:"context"` //发布的内容
+	ActivityTime  string  `form:"activitytime"json:"activitytime"`//活动时间
 	CreatedAt time.Time              //发布时间
 
 }
