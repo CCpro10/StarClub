@@ -1,7 +1,7 @@
 package model
 
 //表示用户和关注的社团
-type ClubFans struct {
+type ClubFollows struct {
 	ID     uint `gorm:"primary_key"`
 	ClubId uint `form:"clubid"json:"clubid"  ` //社团ID
 	UserId uint `form:"userid"json:"userid"`   //用户ID

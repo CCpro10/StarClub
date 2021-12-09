@@ -46,6 +46,9 @@ func InitMySQL() {
 		model.UserInfo{},
 		model.Comment{},
 		model.Post{},
+		model.ClubFollows{},
+		model.MyActivity{},
+		model.ClubList{},
 	)
 
 }

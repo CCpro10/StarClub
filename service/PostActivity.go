@@ -19,11 +19,19 @@ func PostActivity(c *gin.Context) {
 		return
 	}
 
-	// 获取登录用户的id
-	userid, _ := c.Get("userid")
+	// 从token中获取登录用户的id
+	userid, ok := c.Get("userid")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "获取用户信息失败"})
+		return
+	}
 	//查询是否为社团号,检查权限
 	var user model.UserInfo
-	dao.DB.Where("ID=?", userid.(uint)).First(&user)
+	if err := dao.DB.Where("ID=?", userid.(uint)).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户查询失败"})
+		log.Println(err.Error())
+		return
+	}
 	if !user.IsClub {
 		c.JSON(http.StatusForbidden, gin.H{"msg": "只有社团才可以发布活动"})
 		return
@@ -34,7 +42,7 @@ func PostActivity(c *gin.Context) {
 	RequestActivity.UserId = userid.(uint)
 	// 创建活动
 	if err := dao.DB.Create(&RequestActivity).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": "活动创建失败:"})
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "活动创建失败"})
 		log.Println(err.Error())
 		return
 	}

@@ -31,14 +31,14 @@ func Login(c *gin.Context) {
 
 	var user = model.UserInfo{}
 	//判断是学号还是邮箱
-	studentid, err := strconv.Atoi(requestUser.EmailOrId)
+	_, err = strconv.Atoi(requestUser.EmailOrId)
 	//如果输入的是学号
 	if err == nil {
-		if len(string(studentid)) != 10 {
+		if len(requestUser.EmailOrId) != 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "学号格式错误"})
 			return
 		}
-		dao.DB.Where("studdent_id = ?", requestUser.EmailOrId).First(&user)
+		dao.DB.Where("student_id = ?", requestUser.EmailOrId).First(&user)
 		//账号是否存在
 		if user.ID == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "此用户不存在，请先注册或检查是否输入有误"})

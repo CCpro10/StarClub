@@ -25,7 +25,11 @@ func main() {
 	Authgroup := r.Group("/auth")
 	Authgroup.Use(model.JWTAuthMiddleware)
 	{
-		Authgroup.POST("activity", service.PostActivity)
+
+		Authgroup.POST("/activity", service.PostActivity)
+
+		Authgroup.POST("/subscribe", service.FollowClub)
+		Authgroup.DELETE("subscribe", service.Unsubscribe)
 	}
 
 	//r.POST("/login",controller.Login)
