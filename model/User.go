@@ -15,7 +15,8 @@ type UserInfo struct {
 	StudentId string `form:"studentid"json:"studentid"` //真实学号
 	Username  string `form:"username"json:"username"`   //用户的呢名
 	Password  string `form:"password"json:"password"`   //密码
-	Name      string `form:"name"json:"name"`           //用户真实姓名
+	TrueName  string `form:"name"json:"name"`           //用户真实姓名
+	IsClub    bool   `form:"isclub"json:"isclub"`       //是否为社团号
 }
 
 //用户注册信息
@@ -28,10 +29,6 @@ type UserRegister struct {
 
 //用户登录信息
 type UserLogin struct {
-	EmailOrId   string `form:"emailorid"json:"emailorid"`  //电子邮箱或学号
-	Password   string `form:"password"json:"password"`   //密码
+	EmailOrId string `form:"emailorid"json:"emailorid"` //电子邮箱或学号
+	Password  string `form:"password"json:"password"`   //密码
 }
-
-
-
-

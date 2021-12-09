@@ -1,6 +1,7 @@
 package main
 
 import (
+	"StarClub/dao"
 	"StarClub/model"
 	"StarClub/service"
 	"github.com/gin-gonic/gin"
@@ -9,17 +10,23 @@ import (
 func main() {
 
 	//连接数据库
-	model.InitMySQL()
+	dao.InitMySQL()
 
 	//连接Redis
-	model.InitRedis()
+	dao.InitRedis()
 
 	//defer dao.Close()  // 程序退出关闭数据库连接
 	r := gin.Default()
 
-	r.POST("/sendvcode", service.SendVcode)
+	r.POST("/sendverifycode", service.SendVerifyCode)
 	r.POST("/register", service.Register)
 	r.POST("/login", service.Login)
+
+	Authgroup := r.Group("/auth")
+	Authgroup.Use(model.JWTAuthMiddleware)
+	{
+		Authgroup.POST("activity", service.PostActivity)
+	}
 
 	//r.POST("/login",controller.Login)
 	//r.POST("/developerlogin",controller.Developerlogin)
