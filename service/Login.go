@@ -1,6 +1,7 @@
 package service
 
 import (
+	"StarClub/dao"
 	"StarClub/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,7 @@ func Login(c *gin.Context) {
 	err := c.ShouldBind(&requestUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg":  "参数绑定失败",
+			"msg": "参数绑定失败",
 		})
 		return
 	}
@@ -28,16 +29,16 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	var user =model.UserInfo{}
+	var user = model.UserInfo{}
 	//判断是学号还是邮箱
 	studentid, err := strconv.Atoi(requestUser.EmailOrId)
 	//如果输入的是学号
-	if err==nil{
+	if err == nil {
 		if len(string(studentid)) != 10 {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "学号格式错误"})
 			return
 		}
-		model.DB.Where("studdent_id = ?", requestUser.EmailOrId).First(&user)
+		dao.DB.Where("studdent_id = ?", requestUser.EmailOrId).First(&user)
 		//账号是否存在
 		if user.ID == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "此用户不存在，请先注册或检查是否输入有误"})
@@ -49,7 +50,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString,err:= model.GenToken(user.ID)
+		tokenString, err := model.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return
@@ -61,14 +62,14 @@ func Login(c *gin.Context) {
 		return
 
 		//输入的是邮箱
-	}else {
+	} else {
 		//先用正则表达式判断邮箱格式有没有错误
-		ok:=model.CheckEmail(requestUser.EmailOrId)
-		if !ok{
+		ok := model.CheckEmail(requestUser.EmailOrId)
+		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱格式错误"})
 			return
 		}
-		model.DB.Where("email = ?", requestUser.EmailOrId).First(&user)
+		dao.DB.Where("email = ?", requestUser.EmailOrId).First(&user)
 		//查询邮箱是否存在
 		if user.ID == 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "此用户不存在，请先注册或检查是否输入有误"})
@@ -80,7 +81,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString,err:= model.GenToken(user.ID)
+		tokenString, err := model.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return

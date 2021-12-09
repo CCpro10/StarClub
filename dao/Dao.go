@@ -1,14 +1,13 @@
-package model
+package dao
 
 import (
-
+	"StarClub/model"
 	"context"
 	_ "fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "time"
-
 )
 
 //Redis相关全局变量
@@ -34,7 +33,7 @@ var (
 
 func InitMySQL() {
 	//dsn := "debian-sys-maint:YW6xCg7iemGYaPGe@tcp(127.0.0.1:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := "root:111111@tcp(127.0.0.1:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:111111@tcp(127.0.0.1:3306)/db2?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	DB, err = gorm.Open("mysql", dsn)
 	if err != nil {
@@ -42,6 +41,11 @@ func InitMySQL() {
 	}
 
 	//先创建表
-	DB.AutoMigrate(UserRegister{})
-	DB.AutoMigrate(UserInfo{})
+	DB.AutoMigrate(
+		model.Activity{},
+		model.UserInfo{},
+		model.Comment{},
+		model.Post{},
+	)
+
 }
