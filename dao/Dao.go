@@ -5,6 +5,7 @@ import (
 	"context"
 	_ "fmt"
 	"github.com/go-redis/redis/v8"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "time"
@@ -36,6 +37,7 @@ func InitMySQL() {
 	dsn := "root:111111@tcp(127.0.0.1:3306)/db2?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	DB, err = gorm.Open("mysql", dsn)
+	//DB, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
