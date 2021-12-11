@@ -27,11 +27,10 @@ func ExampleClient() {
 	}
 	fmt.Println("key", val)
 
-	rdb.HSet(ctx,"vcode","email2","sss2")
-	rdb.Expire(ctx,"email2",time.Second*5)
+	rdb.HSet(ctx, "vcode", "email2", "sss2")
+	rdb.Expire(ctx, "email2", time.Second*5)
 
-
-	val2, err := rdb.HGet(ctx, "vcode","email2").Result()
+	val2, err := rdb.HGet(ctx, "vcode", "email2").Result()
 	if err == redis.Nil {
 		fmt.Println("key2 does not exist")
 	} else if err != nil {

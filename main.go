@@ -23,7 +23,10 @@ func main() {
 
 	//defer dao.Close()  // 程序退出关闭数据库连接
 	r := gin.Default()
-
+	err := r.SetTrustedProxies(nil)
+	if err != nil {
+		log.Println(err)
+	}
 	r.POST("/sendverifycode", service.SendVerifyCode)
 	r.POST("/register", service.Register)
 	r.POST("/login", service.Login)
