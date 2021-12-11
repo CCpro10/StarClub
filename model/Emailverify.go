@@ -62,8 +62,7 @@ func EmailVerify(emaddr string) (vcode string, sendtime time.Time, err error) {
         </div>    
     </div>`, randcode))
 
-	//设置服务器相关的配置
-	//err = em.Send("smtp.qq.com:465", smtp.PlainAuth("", "1797249167@qq.com", "muckhyskaauhfidh", "smtp.qq.com"))
+	//设置服务器相关的配置,这里原来是25端口,后面换成了587
 	err = em.Send("smtp.qq.com:587", smtp.PlainAuth("", "1797249167@qq.com", "muckhyskaauhfidh", "smtp.qq.com"))
 	if err != nil {
 		log.Println(err)
