@@ -2,6 +2,7 @@ package service
 
 import (
 	"StarClub/dao"
+	"StarClub/middleware"
 	"StarClub/model"
 	"StarClub/util"
 	"fmt"
@@ -51,7 +52,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString, err := util.GenToken(user.ID)
+		tokenString, err := middleware.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return
@@ -82,7 +83,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString, err := util.GenToken(user.ID)
+		tokenString, err := middleware.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return
