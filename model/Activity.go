@@ -12,6 +12,7 @@ type Activity struct {
 	Context      string `form:"context"`                         //发布的内容
 	ActivityTime int64  `form:"activitytime"json:"activitytime"` //活动时间,毫秒时间戳
 
-	CreatedAt time.Time //发布时间
+	CollectionNumbers int       `form:"collectionnumbers"json:"collectionnumbers"gorm:"default:0"` //活动收藏人数
+	CreatedAt         time.Time //发布时间
 
 }
