@@ -1,13 +1,14 @@
 package main
 
 import (
-	"StarClub/model"
+	"StarClub/util"
 	"log"
 )
 
+//测试发邮件
 func main() {
 	em := "www.Co15770778807@126.com"
-	flag := model.CheckEmail(em)
-	vcode, time, err := model.EmailVerify(em)
+	flag := util.CheckEmail(em)
+	vcode, time, err := util.EmailVerify(em)
 	log.Println(flag, vcode, time, err)
 }

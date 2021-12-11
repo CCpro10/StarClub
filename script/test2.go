@@ -9,6 +9,7 @@ import (
 
 var ctx = context.Background()
 
+//测试Redis
 func ExampleClient() {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",

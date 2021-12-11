@@ -3,6 +3,7 @@ package service
 import (
 	"StarClub/dao"
 	"StarClub/model"
+	"StarClub/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -50,7 +51,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString, err := model.GenToken(user.ID)
+		tokenString, err := util.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return
@@ -64,7 +65,7 @@ func Login(c *gin.Context) {
 		//输入的是邮箱
 	} else {
 		//先用正则表达式判断邮箱格式有没有错误
-		ok := model.CheckEmail(requestUser.EmailOrId)
+		ok := util.CheckEmail(requestUser.EmailOrId)
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱格式错误"})
 			return
@@ -81,7 +82,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		// 生成Token
-		tokenString, err := model.GenToken(user.ID)
+		tokenString, err := util.GenToken(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"msg": "用户token生成失败"})
 			return

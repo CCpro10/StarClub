@@ -3,6 +3,7 @@ package service
 import (
 	"StarClub/dao"
 	"StarClub/model"
+	"StarClub/util"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -24,7 +25,7 @@ func SendVerifyCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱参数绑定失败:" + err.Error()})
 	}
 	//检查邮箱格式是否合法
-	if model.CheckEmail(user.Email) == false {
+	if util.CheckEmail(user.Email) == false {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱格式不正确,请确保输入有效的邮箱"})
 		return
 	}
@@ -47,7 +48,7 @@ func SendVerifyCode(c *gin.Context) {
 	}
 
 	//发送验证码邮件
-	if vcode, sendtime, err = model.EmailVerify(user.Email); err != nil {
+	if vcode, sendtime, err = util.EmailVerify(user.Email); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"msg": "邮箱发送错误,error=" + err.Error()})
 		return
 	}
@@ -76,7 +77,7 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "学号格式错误"})
 		return
 	}
-	if model.CheckEmail(requestUser.Email) == false {
+	if util.CheckEmail(requestUser.Email) == false {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "邮箱格式不正确,请确保输入有效的邮箱"})
 		return
 	}
