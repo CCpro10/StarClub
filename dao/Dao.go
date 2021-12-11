@@ -30,7 +30,7 @@ var (
 )
 
 func InitMySQL() {
-	dsn := "debian-sys-maint:YW6xCg7iemGYaPGe@tcp(127.0.0.1:3306)/db1?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "debian-sys-maint:YW6xCg7iemGYaPGe@tcp(127.0.0.1:3306)/dbstarclub?charset=utf8mb4&parseTime=True&loc=Local"
 	//dsn := "root:111111@tcp(127.0.0.1:3306)/db2?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	DB, err = gorm.Open("mysql", dsn)
