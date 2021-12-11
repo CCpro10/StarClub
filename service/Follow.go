@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-//关注
+//关注,传入 clubid
 func FollowClub(c *gin.Context) {
 	//绑定参数
 	var clubfollers = model.ClubFollows{}
@@ -45,7 +45,7 @@ func FollowClub(c *gin.Context) {
 	}
 }
 
-//取消关注
+//取消关注,传入 clubid
 func Unsubscribe(c *gin.Context) {
 	//绑定参数
 	var clubfollers = model.ClubFollows{}

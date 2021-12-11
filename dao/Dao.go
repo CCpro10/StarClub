@@ -3,12 +3,9 @@ package dao
 import (
 	"StarClub/model"
 	"context"
-	_ "fmt"
 	"github.com/go-redis/redis/v8"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "time"
 )
 
 //Redis相关全局变量
