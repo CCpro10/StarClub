@@ -1,8 +1,8 @@
 package dao
 
 import (
+	"StarClub/conf"
 	"StarClub/model"
-	"StarClub/util"
 	"context"
 
 	"github.com/go-redis/redis/v8"
@@ -10,14 +10,11 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-//获取配置文件
-var Conf = util.GetConf()
-
 var CTX = context.Background()
 var RedisDB = redis.NewClient(&redis.Options{
-	Addr:     Conf.Redis.Addr,
-	Password: Conf.Redis.Password, // no password set
-	DB:       Conf.Redis.DB,       // use default DB
+	Addr:     conf.Config.Redis.Addr,
+	Password: conf.Config.Redis.Password, // no password set
+	DB:       conf.Config.Redis.DB,       // use default DB
 })
 
 //Redis相关全局变量
@@ -33,10 +30,10 @@ var DB *gorm.DB
 
 func InitMySQL() {
 
-	dsn := Conf.MYSQL.Username + ":" +
-		Conf.MYSQL.Password + "@tcp(" +
-		Conf.MYSQL.Addr + ")/" +
-		Conf.MYSQL.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := conf.Config.MYSQL.Username + ":" +
+		conf.Config.MYSQL.Password + "@tcp(" +
+		conf.Config.MYSQL.Addr + ")/" +
+		conf.Config.MYSQL.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 
 	var err error
 	DB, err = gorm.Open("mysql", dsn)

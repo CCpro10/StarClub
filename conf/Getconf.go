@@ -1,4 +1,4 @@
-package util
+package conf
 
 import (
 	"fmt"
@@ -7,6 +7,11 @@ import (
 )
 
 type Conf struct {
+	Email struct {
+		Emailpassword string `yaml:"emailpassword"`
+		Id            string `yaml:"id"`
+	}
+
 	Redis struct {
 		Addr     string `yaml:"addr"`
 		Password string `yaml:"password"`
@@ -34,3 +39,6 @@ func GetConf() *Conf {
 	}
 	return &c
 }
+
+//获取配置文件
+var Config = GetConf()
