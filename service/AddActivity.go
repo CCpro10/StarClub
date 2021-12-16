@@ -11,8 +11,8 @@ import (
 
 //关注,传入 activityid
 func AddActivity(c *gin.Context) {
-	//绑定参数
-	var myactivity = model.MyActivity{}
+	//绑定传入的参数
+	var myactivity model.MyActivity
 	if err := c.ShouldBind(&myactivity); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数绑定失败"})
 		return

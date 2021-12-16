@@ -4,10 +4,11 @@ import (
 	"StarClub/conf"
 	"StarClub/model"
 	"context"
+	"log"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var CTX = context.Background()
@@ -36,14 +37,14 @@ func InitMySQL() {
 		conf.Config.MYSQL.Database + "?charset=utf8mb4&parseTime=True&loc=Local"
 
 	var err error
-	DB, err = gorm.Open("mysql", dsn)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{}) //这里用短变量声明会有歧义
 	//DB, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
 	//先创建表
-	DB.AutoMigrate(
+	if err = DB.AutoMigrate(
 		model.Activity{},
 		model.UserInfo{},
 		model.Comment{},
@@ -51,6 +52,8 @@ func InitMySQL() {
 		model.ClubFollows{},
 		model.MyActivity{},
 		model.ClubList{},
-	)
+	); err != nil {
+		log.Panicln(err)
+	}
 
 }
